@@ -1,14 +1,28 @@
 do
+	ZombieArmyNum = ScenarioInfo.Options.ZombieArmy;
+	LOG("::Zombies:: Selected Zombie Army #: " .. ZombieArmyNum);
     AreZombiesSetup = false
 	ZombieArmy = "ARMY_9"
+
 	SetupZombies = function()
+		LOG("::Zombies:: LISTING ABRAINS");
 		for aindex, abrain in ArmyBrains do
-			if abrain.Name == "ARMY_9" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
+			SPEW("::Zombies:: " .. abrain.Name);
+			SPEW(abrain);
+			if 
+				abrain.Name == "ARMY_" .. ZombieArmyNum
+			then 
+				ZombieArmy = abrain.Name;
+				AreZombiesSetup = true;
+				LOG("::Zombies:: Zombie army found: " .. abrain.Name);
+				return
+			end
+			--if abrain.Name == "ARMY_9" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
 			--if abrain.Name == "ARMY_12" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
-			if abrain.Name == "NEUTRAL_CIVILIAN" then AreZombiesSetup = true; ZombieArmy = abrain.Name; end
+			--if abrain.Name == "NEUTRAL_CIVILIAN" then AreZombiesSetup = true; ZombieArmy = abrain.Name; end
 		end
 		if AreZombiesSetup then return end
-		WARN("Zombae could not find a suitable army to assign zombies to, so this will most likely crash.")
+		WARN("::Zombies:: Could not find a suitable army to assign zombies to, so this will most likely crash.")
 	end
 
     local oUnit = Unit;
@@ -16,7 +30,7 @@ do
     Unit = Class(oUnit) {
         IsZombie = false,
 		CreateWreckage = function( self, overkillRatio )
-			if not AreZombiesSetup then SetupZombies() end
+			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			if self.IsZombie or not AreZombiesSetup then
 				oUnit.CreateWreckage( self, overkillRatio )
 			else
