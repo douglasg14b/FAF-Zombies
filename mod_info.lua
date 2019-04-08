@@ -1,9 +1,9 @@
-name = "Zombie"
-uid = "3bda2f20-47fe-4b1e-9a57-f1d396982952"
-version = 2
-description = "Dead units will become zombies."
-author = "Zarechaun"
-url = "nothing@nowhere.net"
+name = "Zombies"
+uid = "4b113ac0-59af-11e9-b475-0800200c9a66"
+version = 3
+description = "Dead units will become zombies. Original mod by Zarechaun."
+author = "Douglasg14b"
+url = "https://github.com/douglasg14b/FAF-Zombies"
 selectable = true
 enabled = true
 exclusive = false
