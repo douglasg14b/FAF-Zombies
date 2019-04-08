@@ -1,0 +1,15 @@
+name = "Zombie"
+uid = "3bda2f20-47fe-4b1e-9a57-f1d396982952"
+version = 2
+description = "Dead units will become zombies."
+author = "Zarechaun"
+url = "nothing@nowhere.net"
+selectable = true
+enabled = true
+exclusive = false
+ui_only = false
+requires = { }
+requiresNames = { }
+conflicts = { }
+before = { }
+after = { }
