@@ -10,6 +10,8 @@ function BeginSession()
 end
 
 function ZombieSimThread()
+	SPEW("::Zombies:: Starting sim thread")
+
 	WaitSeconds(2)
 	Sync.zAlert = { "Welcome", "to the Zombie horde..." };
 end
