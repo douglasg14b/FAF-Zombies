@@ -14,7 +14,8 @@ do
 			then 
 				ZombieArmy = abrain.Name;
 				AreZombiesSetup = true;
-				LOG("::Zombies:: Zombie army found: " .. abrain.Name);
+				LOG("::Zombies:: Zombie army found: " .. ArmyBrains[abrain:GetArmyIndex()].Nickname);
+				ScenarioInfo.Zombie.Army = ArmyBrains[abrain:GetArmyIndex()].Nickname;
 				return
 			end
 			--if abrain.Name == "ARMY_9" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
@@ -35,7 +36,9 @@ do
 			
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			
-			local ownArmy = self:GetAIBrain().Name
+			local selfAiBrain = self:GetAIBrain();
+			local instigatorAiBrain = instigator:GetAIBrain();
+			--local ownArmy = self:GetAIBrain().Name
 			local preAdjHealth = self:GetHealth()
 			if preAdjHealth - amount > 0 then 
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
@@ -43,7 +46,7 @@ do
 			elseif self.IsZombie or not AreZombiesSetup then
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif ownArmy ~= ZombieArmy then
+			elseif selfAiBrain.Name ~= ZombieArmy then
 				SPEW("::Zombies:: Unit Killed: Self: " .. self:GetArmy() .. " Instigator: " .. instigator:GetArmy())
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
@@ -58,6 +61,21 @@ do
 			end
 
 			self.IsZombie = true
+
+			-- Notify instigator of kill and spread veterancy
+			-- We prevent any vet spreading if the instigator isn't part of the vet system (EG - Self destruct)
+			-- This is so that you can bring a damaged Experimental back to base, kill, and rebuild, without granting
+			-- instant vet to the enemy army, as well as other obscure reasons
+			if self.totalDamageTaken > 0 and not self.veterancyDispersed then
+				self:VeterancyDispersal(not instigator or not IsUnit(instigator))
+			end
+
+			local bp = self:GetBlueprint()
+			local massCost = bp.Economy.BuildCostMass
+			local energyCost = bp.Economy.BuildCostEnergy
+
+			--instigatorAiBrain:GiveResource('MASS', massCost)
+			--instigatorAiBrain:GiveResource('ENERGY', energyCost)
 
 			self:ForkThread( self.HandlePseudoDeath, self, instigator,  overkillRatio)
 			self:AdjustHealth(self, maxHealth)
@@ -84,6 +102,7 @@ do
 			if self.ShowUnitDestructionDebris and overkillRatio then
 				self.CreateUnitDestructionDebris(self, true, true, overkillRatio > 2)
 			end
+
 		end,
 
 		CreateWreckage = function( self, overkillRatio )
