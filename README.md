@@ -4,11 +4,15 @@
 
 # FAF Zombies
 
-Zombies mod for Forged Alliance Forver!
+Zombies mod for Forged Alliance Forever!
 
 ## What is this?
 
 An updated version of the old Zombies mod created by Zarechaun. 
+
+### Mechanics
+
+A player slot is designated as the "Zombie". Any units that die in game respawn as zombies for this player. Any units that player owns, when killed, also spawn in as zombies (meaning their units need to be killed twice).
 
 ## What's Different?
 
@@ -29,11 +33,16 @@ This has been changed so Zombie player units, on first death, show an explosion,
 
 * Mass/Energy Vampire Stats in slideout
 * Zombies killed stats in sidebar
+* **Balance**
+  * Prevent some experimentals owned by the Zombie player from respawning after death (other players experimentals still become zombies)
+  * Turn off Zombie players zombies? Meaning the Zombie players units are already zombies, so they don't respawn fter death.
 * Random Zombie assignment game mode (like phantom)
 * Zombie unit health decay
 * Some sort of buffs/nerfs to Zombies/Normies to make the game more dynamic
 * Cheese Mode (Fractal Zombies)
-  * Players should probably limit this to T1/2 ...
+  * Experimentals should split into 1/2 mass equivilant T3 units of their kind
+  * Megolith should spit into 2x monkeylords
+  *....etc
 
 
 ## Credits
