@@ -8,7 +8,7 @@ Zombies mod for Forged Alliance Forever!
 
 ## What is this?
 
-An updated version of the old Zombies mod created by Zarechaun. 
+An enhanced version of the old Zombies mod created by Zarechaun. 
 
 ### Mechanics
 
@@ -28,6 +28,8 @@ A player slot is designated as the "Zombie". Any units that die in game respawn 
 Zombie player units no longer completely die and respawn from where the wreck is. This was the cause of some weirdness such as naval units not coming back till they sunk, and air units spawning on the ground. This also caused some grief to players as move/attack orders would be lost.
 
 This has been changed so Zombie player units, on first death, show an explosion, but keep attacking/moving immediately. Vampire mass/energy and veterancy is handed out appropriately.
+
+This also means that fotresses don't fall twice, and chickens don't produce two lightning storms.
 
 ## Planned Features
 
