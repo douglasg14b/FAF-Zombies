@@ -32,8 +32,16 @@ do
 		IsZombie = false,
 
 		DoTakeDamage = function(self, instigator, amount, vector, damageType)
+			local ok,msg = pcall(self.HandleDoTakeDamage, self, instigator, amount, vector, damageType)
 
-			
+			if not ok then
+				WARN("::Zombies:: Exception occured when trying to perform zombie damage. Reverting to vanilla damage instead. Message on next line:")
+				WARN(msg)
+				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
+			end
+		end,
+
+		HandleDoTakeDamage = function(self, instigator, amount, vector, damageType)			
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			
 			local selfAiBrain = self:GetAIBrain();
