@@ -41,8 +41,10 @@ This has been changed so Zombie player units, on first death, show an explosion,
 * Some sort of buffs/nerfs to Zombies/Normies to make the game more dynamic
 * Cheese Mode (Fractal Zombies)
   * Experimentals should split into 1/2 mass equivilant T3 units of their kind
-  * Megolith should spit into 2x monkeylords
-  *....etc
+    * CZAR -> Restorers
+    * Megolith -> 2x monkeylords
+    * Fatboy -> Demolishers
+  * ....etc
 
 
 ## Credits
