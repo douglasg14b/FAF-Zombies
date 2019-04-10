@@ -75,7 +75,7 @@ do
 			local energyCost = bp.Economy.BuildCostEnergy
 
 			instigatorAiBrain:GiveResource('MASS', massCost * tonumber(ScenarioInfo.Options.VampirePercentage))
-			instigatorAiBrain:GiveResource('ENERGY', energyCost tonumber(ScenarioInfo.Options.VampirePercentage))
+			instigatorAiBrain:GiveResource('ENERGY', energyCost * tonumber(ScenarioInfo.Options.VampirePercentage))
 
 			self:ForkThread( self.HandlePseudoDeath, self, instigator,  overkillRatio)
 			self:AdjustHealth(self, maxHealth)
