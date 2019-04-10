@@ -38,5 +38,5 @@ This has been changed so Zombie player units, on first death, show an explosion,
 
 ## Credits
 
-Icon credit goes to Freepik from www.flaticon.com
+Icon credit goes to Roundicons from www.flaticon.com
 
