@@ -1,5 +1,5 @@
 <p align="center" style="text-align:center;">
-  <img src="modicon.png">
+  <img title="Designed by Freepik from www.flaticon.com" src="modicon.png">
 </p>
 
 # FAF Zombies
@@ -35,4 +35,8 @@ This has been changed so Zombie player units, on first death, show an explosion,
 * Cheese Mode (Fractal Zombies)
   * Players should probably limit this to T1/2 ...
 
+
+## Credits
+
+Icon credit goes to Freepik from www.flaticon.com
 
