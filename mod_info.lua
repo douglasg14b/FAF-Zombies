@@ -1,8 +1,8 @@
-name = "Zombies"
+name = "ZombieX"
 uid = "4b113ac0-59af-11e9-b475-0800200c9a66"
 version = 3
-description = "Dead units will become zombies. Original mod by Zarechaun."
-author = "Douglasg14b"
+description = "Dead units will become zombies. Now with army selection and mass/energy vampire under AI Options in the lobby. See more at https://github.com/douglasg14b/FAF-Zombies"
+author = "Original code by Zarechaun. Additional code by Douglasg14b"
 url = "https://github.com/douglasg14b/FAF-Zombies"
 selectable = true
 enabled = true
