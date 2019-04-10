@@ -34,8 +34,9 @@ This has been changed so Zombie player units, on first death, show an explosion,
 * Mass/Energy Vampire Stats in slideout
 * Zombies killed stats in sidebar
 * **Balance**
-  * Prevent some experimentals owned by the Zombie player from respawning after death (other players experimentals still become zombies)
-  * Turn off Zombie players zombies? Meaning the Zombie players units are already zombies, so they don't respawn fter death.
+  * Zombie player only Vampire option
+  * Prevent some experimentals owned by the Zombie player from respawning after death (other players experimentals still become zombies)?
+  * Option to turn off Zombie players zombies? Meaning the Zombie players units are already zombies, so they don't respawn fter death.
 * Random Zombie assignment game mode (like phantom)
 * Zombie unit health decay
 * Some sort of buffs/nerfs to Zombies/Normies to make the game more dynamic
@@ -44,7 +45,7 @@ This has been changed so Zombie player units, on first death, show an explosion,
     * CZAR -> Restorers
     * Megolith -> 2x monkeylords
     * Fatboy -> Demolishers
-  * ....etc
+    * ....etc
 
 
 ## Credits
