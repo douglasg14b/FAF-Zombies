@@ -36,8 +36,6 @@ do
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			
 			local ownArmy = self:GetAIBrain().Name
-			--SPEW("::Zombies:: Army: " .. self:GetArmy())
-			--SPEW("::Zombies:: AI Brain: " .. self:GetAIBrain().Name)
 			local preAdjHealth = self:GetHealth()
 			if preAdjHealth - amount > 0 then 
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
@@ -54,7 +52,7 @@ do
 			local overkillRatio = 0.0
 			local excess = preAdjHealth - amount
 			local maxHealth = self:GetMaxHealth()
-			SPEW("::Zombies:: Calculating Overkill. Max health: " .. maxHealth)
+
 			if excess < 0 and maxHealth > 0 then
 				overkillRatio = -excess / maxHealth
 			end
@@ -62,10 +60,6 @@ do
 			self.IsZombie = true
 
 			self:ForkThread( self.HandlePseudoDeath, self, instigator,  overkillRatio)
-
-			--local bp = self:GetBlueprint()
-			--SPEW("::Zombies:: Healing Unit. Max health: " .. bp.Defense.maxHealth)
-			--SPEW("::Zombies:: Healing Unit. Max health: " .. self:GetMaxHealth())
 			self:AdjustHealth(self, maxHealth)
 		end,
 
