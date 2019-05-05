@@ -1,5 +1,7 @@
 do
 	ZombieArmyNum = ScenarioInfo.Options.ZombieArmy;
+	ScenarioInfo.Zombie = {}
+
 	LOG("::Zombies:: Selected Zombie Army #: " .. ZombieArmyNum);
     AreZombiesSetup = false
 	ZombieArmy = "ARMY_9"
@@ -8,7 +10,6 @@ do
 		LOG("::Zombies:: LISTING ABRAINS");
 		for aindex, abrain in ArmyBrains do
 			SPEW("::Zombies:: " .. abrain.Name);
-			SPEW(abrain);
 			if 
 				abrain.Name == "ARMY_" .. ZombieArmyNum
 			then 
@@ -44,18 +45,21 @@ do
 		HandleDoTakeDamage = function(self, instigator, amount, vector, damageType)			
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			
+			-- Get AIs of the player who damaged the unit and the player who took damage
 			local selfAiBrain = self:GetAIBrain();
 			local instigatorAiBrain = instigator:GetAIBrain();
-			--local ownArmy = self:GetAIBrain().Name
+
+			
+
 			local preAdjHealth = self:GetHealth()
-			if preAdjHealth - amount > 0 then 
+			if preAdjHealth - amount > 0 then  -- Unit damaged, but not killed
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif self.IsZombie or not AreZombiesSetup then
+			elseif self.IsZombie or not AreZombiesSetup then -- Unit killed, but is a zombie
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif selfAiBrain.Name ~= ZombieArmy then
-				SPEW("::Zombies:: Unit Killed: Self: " .. self:GetArmy() .. " Instigator: " .. instigator:GetArmy())
+			elseif selfAiBrain.Name ~= ZombieArmy then -- Unit killed, is not a zombie, but belongs to the zombie army
+				-- SPEW("::Zombies:: Unit Killed: Self: " .. self:GetArmy() .. " Instigator: " .. instigator:GetArmy())
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
 			end
@@ -89,6 +93,7 @@ do
 			self:AdjustHealth(self, maxHealth)
 		end,
 
+		-- Provides the death/explosion sound and animation
 		HandlePseudoDeath = function(self, instigator, overkillRatio)
 			local layer = self:GetCurrentLayer()
 			local bp = self:GetBlueprint()
@@ -115,7 +120,13 @@ do
 
 		CreateWreckage = function( self, overkillRatio )
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
+			
+			-- Zombies die normally
 			if self.IsZombie or not AreZombiesSetup then
+				oUnit.CreateWreckage( self, overkillRatio )
+			
+			-- Self-destruct/suicide doesn't turn into zombies
+			elseif ArmyBrains[self:GetArmy()].LastUnitKilledBy == self:GetArmy() then
 				oUnit.CreateWreckage( self, overkillRatio )
 			else
 			    -- Something like this may need to happen to fix survivals:
