@@ -19,7 +19,10 @@ A player slot is designated as the "Zombie". Any units that die in game respawn 
 * Lobby Options
   * Energy/Mass Vampire Options
   * Zombie slot selection
+  * Zombie movement speed selection
+  * Zombie unit decay selection
 * Zombie slot unit death changes
+  * Ctrl+K units no longer become zombies
 * Welcome message
 * Left info slideout (WIP, empty right now)
 
@@ -40,8 +43,9 @@ This also means that fotresses don't fall twice, and chickens don't produce two 
   * Prevent some experimentals owned by the Zombie player from respawning after death (other players experimentals still become zombies)?
   * Option to turn off Zombie players zombies? Meaning the Zombie players units are already zombies, so they don't respawn fter death.
 * Random Zombie assignment game mode (like phantom)
-* Zombie unit health decay
+* ~Zombie unit health decay~
 * Some sort of buffs/nerfs to Zombies/Normies to make the game more dynamic
+  * ~Zombie Speed~
 * Cheese Mode (Fractal Zombies)
   * Experimentals should split into 1/2 mass equivilant T3 units of their kind
     * CZAR -> Restorers
