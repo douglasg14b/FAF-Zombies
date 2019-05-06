@@ -49,7 +49,6 @@ do
 			-- Get AIs of the player who damaged the unit and the player who took damage
 			local selfAiBrain = self:GetAIBrain();
 			local instigatorAiBrain = instigator:GetAIBrain();
-
 			
 
 			local preAdjHealth = self:GetHealth()
@@ -144,91 +143,69 @@ do
 			local pos = self:GetPosition()
 			local bpid = self:GetBlueprint().BlueprintId
 			if not AreZombiesSetup or self:IsBeingBuilt() then return end
-			-- WaitSeconds(1)
 
 			local newzom = CreateUnitHPR(bpid, ZombieSettings.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
 			newzom.IsZombie = true
 
-
-			 newzom.DecayFn = function(self)
-				WaitSeconds(5); --Delay start of decay by 5 seconds
-
-				local maxHealth = self:GetMaxHealth()
-				local damagePerTick = 0;
-
-				--> If decay rate isn't dynamic
-				if(ZombieSettings.DecayRate ~= -1) then
-					damagePerTick = math.floor(math.max(1, maxHealth / (ZombieSettings.DecayRate * 60)));
-				end
-
-
-
-				while (self and not self:IsDead()) and (self:GetHealth() > 0) do
-					local waitTicks = 10;
-
-					--> Dynamic decay rate reduced as health is lower
-					if(ZombieSettings.DecayRate == -1) then
-						local health = math.min(self:GetHealth(), maxHealth)
-						local percentageOfMax = health / maxHealth
-						local normalDamageRate = health / (ZombieSettings.DecayRates.Normal * 60)
-
-						--> Modifies the rate to make a log curve
-						local rateModifyer = math.pow(percentageOfMax, 1.2)
-						local adjustedRate = normalDamageRate * rateModifyer
-
-						--> Turn into int with a min value of 1
-						damagePerTick = math.max(math.floor(adjustedRate), 1)
-
-						--> If the damage rate is less than 1 then set to 1 and increase the wait time between damage ticks
-						if(adjustedRate < 1) then
-							waitTicks = math.floor(waitTicks/adjustedRate)
-						end
-					end
-
-					self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
-					WaitTicks(waitTicks)
-				end
-				
+			--> Structures don't get decay buff if it's not enabled
+			if EntityCategoryContains(categories.STRUCTURE, newzom) and not ZombieSettings.StructuresDecay then 
+				return
 			end
 			
-
-			-- Test BUFF
-
-			SPEW("::Zombies:: Zombie debuff")
 			
-			--newzom:SetRegenRate(-2);
-			newzom:SetSpeedMult(ZombieSettings.SpeedBuff)
+			-- Set Speed multiplyer for unit
+			if (not EntityCategoryContains(categories.STRUCTURE, newzom) and ZombieSettings.SpeedBuff > 0) then
+				newzom:SetSpeedMult(ZombieSettings.SpeedBuff)
+				newzom:SetAccMult(ZombieSettings.SpeedBuff)
+				newzom:SetTurnMult(ZombieSettings.SpeedBuff)
+			end
+			
 
 			--> If decay rate isn't none
 			if(ZombieSettings.DecayRate ~= 0) then
-				newzom:ForkThread(newzom.DecayFn, newzom)
+				newzom:ForkThread(newzom.DecayUnit, newzom)
 			end
 
-			
---[[ 
- 			local buffName = "ZombieBuff"
-			local buffType = { BuffType = 'ZOMBIEDECAY', BuffValFunction = 'Add', BuffDuration = -1, BuffStacks = 'REPLACE' }
-			local addVal = -2
+		end,
 
-			if not Buffs[buffName] then
-				SPEW("::Zombies:: Creating buff")
-				BuffBlueprint {
-					Name = buffName,
-					DisplayName = buffName,
-					BuffType = self.BuffTypes[buffType].BuffType,
-					Stacks = self.BuffTypes[buffType].BuffStacks,
-					Duration = self.BuffTypes[buffType].BuffDuration,
-					Affects = {
-						Health = {
-							Add = addVal,
-						},
-					},
-				}
+		DecayUnit = function(self)
+			WaitSeconds(5); --Delay start of decay by 5 seconds
+
+			local maxHealth = self:GetMaxHealth()
+			local damagePerTick = 0;
+
+			--> If decay rate isn't dynamic
+			if(ZombieSettings.DecayRate ~= -1) then
+				damagePerTick = math.floor(math.max(1, maxHealth / (ZombieSettings.DecayRate * 60)));
 			end
 
-			SPEW("::Zombies:: Applying buff")
-			Buff.ApplyBuff( self, buffName ) ]]
 
-		end, 
+
+			while (self and not self:IsDead()) and (self:GetHealth() > 0) do
+				local waitTicks = 10;
+
+				--> Dynamic decay rate reduced as health is lower
+				if(ZombieSettings.DecayRate == -1) then
+					local health = math.min(self:GetHealth(), maxHealth)
+					local percentageOfMax = health / maxHealth
+					local normalDamageRate = health / (ZombieSettings.DecayRates.Normal * 60)
+
+					--> Modifies the rate to make a log curve
+					local rateModifyer = math.pow(percentageOfMax, 1.2)
+					local adjustedRate = normalDamageRate * rateModifyer
+
+					--> Turn into int with a min value of 1
+					damagePerTick = math.max(math.floor(adjustedRate), 1)
+
+					--> If the damage rate is less than 1 then set to 1 and increase the wait time between damage ticks
+					if(adjustedRate < 1) then
+						waitTicks = math.floor(waitTicks/adjustedRate)
+					end
+				end
+
+				self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
+				WaitTicks(waitTicks)
+			end
+		end
     }
 end

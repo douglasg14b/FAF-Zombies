@@ -55,6 +55,8 @@ function SetZombiesSettings()
 		SpeedBuff = SpeedBuffs[ScenarioInfo.Options.ZombieSpeed] or SpeedBuffs.Normal,
 		-- The rate at which units decay
 		DecayRate = DecayRates[ScenarioInfo.Options.ZombieDecay],
+		-- If the zombie players structures should also experiance decay
+		StructuresDecay = true,
 
 		SpeedBuffs = SpeedBuffs,
 		DecayRates = DecayRates

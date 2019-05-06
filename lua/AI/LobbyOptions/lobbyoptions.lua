@@ -68,7 +68,7 @@ AIOpts = {
             },
             {
                 text = "<LOC zombies_00021>Dynamic",
-                help = "<LOC zombies_00022>Decay slows down as unit health is reduced. Zombies cannot be killed via decay. Starts at normal rate.",
+                help = "<LOC zombies_00022>Decay slows down logarithmically as unit health is reduced. Starts at normal decay rate.",
                 key = 'Dynamic',
             },
             {
