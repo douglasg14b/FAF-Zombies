@@ -1,27 +1,28 @@
 do
-	ZombieArmyNum = ScenarioInfo.Options.ZombieArmy;
-	ScenarioInfo.Zombie = {}
-
-	LOG("::Zombies:: Selected Zombie Army #: " .. ZombieArmyNum);
     AreZombiesSetup = false
-	ZombieArmy = "ARMY_9"
+
+	ZombieSettings = nil
 
 	SetupZombies = function()
+		--> Set up unit-globally accessable settings
+		ZombieSettings = ScenarioInfo.Zombie;
+
 		LOG("::Zombies:: LISTING ABRAINS");
 		for aindex, abrain in ArmyBrains do
 			SPEW("::Zombies:: " .. abrain.Name);
 			if 
-				abrain.Name == "ARMY_" .. ZombieArmyNum
-			then 
-				ZombieArmy = abrain.Name;
+				abrain.Name == "ARMY_" .. ZombieSettings.ArmyIndex
+			then
+				ZombieSettings.ArmyName = abrain.Name
+				ZombieSettings.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
+				ZombieSettings.ArmyIndex = abrain:GetArmyIndex();
+				ZombieSettings.ZombiesSetup = true
+
 				AreZombiesSetup = true;
-				LOG("::Zombies:: Zombie army found: " .. ArmyBrains[abrain:GetArmyIndex()].Nickname);
-				ScenarioInfo.Zombie.Army = ArmyBrains[abrain:GetArmyIndex()].Nickname;
+				LOG("::Zombies:: Zombie army found: " .. ZombieSettings.PlayerName);
+				
 				return
 			end
-			--if abrain.Name == "ARMY_9" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
-			--if abrain.Name == "ARMY_12" then AreZombiesSetup = true; ZombieArmy = abrain.Name; return end
-			--if abrain.Name == "NEUTRAL_CIVILIAN" then AreZombiesSetup = true; ZombieArmy = abrain.Name; end
 		end
 		if AreZombiesSetup then return end
 		WARN("::Zombies:: Could not find a suitable army to assign zombies to, so this will most likely crash.")
@@ -58,7 +59,7 @@ do
 			elseif self.IsZombie or not AreZombiesSetup then -- Unit killed, but is a zombie
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif selfAiBrain.Name ~= ZombieArmy then -- Unit killed, is not a zombie, but belongs to the zombie army
+			elseif selfAiBrain.Name ~= ZombieSettings.ArmyName then -- Unit killed, is not a zombie, but belongs to the zombie army
 				-- SPEW("::Zombies:: Unit Killed: Self: " .. self:GetArmy() .. " Instigator: " .. instigator:GetArmy())
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
@@ -120,29 +121,114 @@ do
 
 		CreateWreckage = function( self, overkillRatio )
 			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
+
+			local selfArmy = self:GetArmy()
 			
 			-- Zombies die normally
 			if self.IsZombie or not AreZombiesSetup then
 				oUnit.CreateWreckage( self, overkillRatio )
 			
-			-- Self-destruct/suicide doesn't turn into zombies
-			elseif ArmyBrains[self:GetArmy()].LastUnitKilledBy == self:GetArmy() then
+			-- Self-destruct/suicide doesn't turn into zombies. Zombie player suicides still turn into zombies
+			elseif ArmyBrains[selfArmy].LastUnitKilledBy == selfArmy and selfArmy ~= ZombieSettings.ArmyIndex  then
 				oUnit.CreateWreckage( self, overkillRatio )
 			else
 			    -- Something like this may need to happen to fix survivals:
-			    -- if self.GetArmy().Name == "ARMY_9" then ZombieArmy = "NEUTRAL_CIVILIAN" end
+			    -- if self.GetArmy().Name == "ARMY_9" then ZombieSettings.ArmyName = "NEUTRAL_CIVILIAN" end
 				self:ForkThread( self.Zombify, self )
 			end
 		end,
 
+		-- Turns the unit into a zombie unit
 		Zombify = function ( self )
 			if not AreZombiesSetup then SetupZombies() end	
 			local pos = self:GetPosition()
 			local bpid = self:GetBlueprint().BlueprintId
 			if not AreZombiesSetup or self:IsBeingBuilt() then return end
 			-- WaitSeconds(1)
-			local newzom = CreateUnitHPR(bpid, ZombieArmy, pos.x, pos.y, pos.z, 0, 0, 0)
+
+			local newzom = CreateUnitHPR(bpid, ZombieSettings.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
 			newzom.IsZombie = true
+
+
+			 newzom.DecayFn = function(self)
+				WaitSeconds(5); --Delay start of decay by 5 seconds
+
+				local maxHealth = self:GetMaxHealth()
+				local damagePerTick = 0;
+
+				--> If decay rate isn't dynamic
+				if(ZombieSettings.DecayRate ~= -1) then
+					damagePerTick = math.floor(math.max(1, maxHealth / (ZombieSettings.DecayRate * 60)));
+				end
+
+
+
+				while (self and not self:IsDead()) and (self:GetHealth() > 0) do
+					local waitTicks = 10;
+
+					--> Dynamic decay rate reduced as health is lower
+					if(ZombieSettings.DecayRate == -1) then
+						local health = math.min(self:GetHealth(), maxHealth)
+						local percentageOfMax = health / maxHealth
+						local normalDamageRate = health / (ZombieSettings.DecayRates.Normal * 60)
+
+						--> Modifies the rate to make a log curve
+						local rateModifyer = math.pow(percentageOfMax, 1.2)
+						local adjustedRate = normalDamageRate * rateModifyer
+
+						--> Turn into int with a min value of 1
+						damagePerTick = math.max(math.floor(adjustedRate), 1)
+
+						--> If the damage rate is less than 1 then set to 1 and increase the wait time between damage ticks
+						if(adjustedRate < 1) then
+							waitTicks = math.floor(waitTicks/adjustedRate)
+						end
+					end
+
+					self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
+					WaitTicks(waitTicks)
+				end
+				
+			end
+			
+
+			-- Test BUFF
+
+			SPEW("::Zombies:: Zombie debuff")
+			
+			--newzom:SetRegenRate(-2);
+			newzom:SetSpeedMult(ZombieSettings.SpeedBuff)
+
+			--> If decay rate isn't none
+			if(ZombieSettings.DecayRate ~= 0) then
+				newzom:ForkThread(newzom.DecayFn, newzom)
+			end
+
+			
+--[[ 
+ 			local buffName = "ZombieBuff"
+			local buffType = { BuffType = 'ZOMBIEDECAY', BuffValFunction = 'Add', BuffDuration = -1, BuffStacks = 'REPLACE' }
+			local addVal = -2
+
+			if not Buffs[buffName] then
+				SPEW("::Zombies:: Creating buff")
+				BuffBlueprint {
+					Name = buffName,
+					DisplayName = buffName,
+					BuffType = self.BuffTypes[buffType].BuffType,
+					Stacks = self.BuffTypes[buffType].BuffStacks,
+					Duration = self.BuffTypes[buffType].BuffDuration,
+					Affects = {
+						Health = {
+							Add = addVal,
+						},
+					},
+				}
+			end
+
+			SPEW("::Zombies:: Applying buff")
+			Buff.ApplyBuff( self, buffName ) ]]
+
 		end, 
     }
 end

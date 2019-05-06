@@ -1,12 +1,3 @@
-#****************************************************************************
-#**
-#**  File     :  /hook/lua/ui/game/gamemain.lua
-#**  Author(s):  novaprim3
-#**
-#**  Summary  :  Multi-Phantom Mod for Forged Alliance
-#**
-#****************************************************************************
-
 local baseCreateUI = CreateUI 
 
 function CreateUI(isReplay) 
