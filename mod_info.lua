@@ -1,8 +1,8 @@
 name = "Zombies"
-uid = "4b113ac0-59af-11e9-b475-0800200c9a66"
-version = 3
-description = "Dead units will become zombies! Now with army selection and mass/energy vampire under AI Options in the lobby. See more at https://github.com/douglasg14b/FAF-Zombies"
-author = "Original code by Zarechaun. Additional code by Douglasg14b, Icon by flaticon.com"
+uid = "5ebb4e1e-61c4-438d-8db1-54eeadb30b6c"
+version = 4
+description = "Dead units will become zombies! Now with army selection, mass/energy vampire, zombies speed, and zombie decay under AI Options in the lobby. See more at https://github.com/douglasg14b/FAF-Zombies"
+author = "Douglasg14b. Original Code by Zarechaun. Icon by flaticon.com"
 url = "https://github.com/douglasg14b/FAF-Zombies"
 icon = "/mods/Zombies/modicon.png"
 selectable = true
