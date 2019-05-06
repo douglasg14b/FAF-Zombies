@@ -30,12 +30,12 @@ AIOpts = {
         values = {
             {
                 text = "<LOC zombies_0009>Very Slow",
-                help = "<LOC zombies_00010>Zombies move at 50% speed",
+                help = "<LOC zombies_00010>Zombies move at 50 percent speed",
                 key = 'VerySlow',
             },
             {
                 text = "<LOC zombies_00011>Slow",
-                help = "<LOC zombies_00012>Zombies move at 75% speed",
+                help = "<LOC zombies_00012>Zombies move at 75 percent speed",
                 key = 'Slow',
             },
             {
@@ -45,12 +45,12 @@ AIOpts = {
             },
             {
                 text = "<LOC zombies_00015>Fast",
-                help = "<LOC zombies_00016>Zombies move at 125% speed",
+                help = "<LOC zombies_00016>Zombies move at 125 percent speed",
                 key = 'Fast',
             },
             {
                 text = "<LOC zombies_00017>Very Fast",
-                help = "<LOC zombies_00018>Zombies move at 150% speed",
+                help = "<LOC zombies_00018>Zombies move at 150 percent speed",
                 key = 'VeryFast',
             },
         }

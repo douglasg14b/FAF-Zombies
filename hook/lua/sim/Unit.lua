@@ -183,10 +183,10 @@ do
 
 			while (self and not self:IsDead()) and (self:GetHealth() > 0) do
 				local waitTicks = 10;
+				local health = math.min(self:GetHealth(), maxHealth)
 
 				--> Dynamic decay rate reduced as health is lower
 				if(ZombieSettings.DecayRate == -1) then
-					local health = math.min(self:GetHealth(), maxHealth)
 					local percentageOfMax = health / maxHealth
 					local normalDamageRate = health / (ZombieSettings.DecayRates.Normal * 60)
 
@@ -203,7 +203,15 @@ do
 					end
 				end
 
-				self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
+				--> TODO: FIgure out how to adjust health without the icon flicker...
+				if(health - damagePerTick <= 0) then
+					self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
+				else
+					SPEW("::Zombies:: using SetHealth")
+					--self:SetHealth(self, health - damagePerTick)
+					self:AdjustHealth(self, -damagePerTick)
+				end
+
 				WaitTicks(waitTicks)
 			end
 		end
