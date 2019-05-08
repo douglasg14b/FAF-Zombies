@@ -41,6 +41,17 @@ function SetZombiesSettings()
 		VeryFast = 1
 	}
 
+	local BuildRates = {
+		None = 1,
+		1.25,
+		1.5,
+		1.75,
+		2.0,
+		2.5,
+		3.0,
+		4.0
+	}
+
 	ScenarioInfo.Zombie = {
 		-- If the Zombie army has been selected
 		ZombiesSetup = false,
@@ -56,17 +67,21 @@ function SetZombiesSettings()
 		SpeedBuff = SpeedBuffs[ScenarioInfo.Options.ZombieSpeed] or SpeedBuffs.Normal,
 		-- The rate at which units decay
 		DecayRate = DecayRates[ScenarioInfo.Options.ZombieDecay],
+		-- The Zombie players build rate
+		BuildRate = tonumber(ScenarioInfo.Options.ZombieBuildRate),
 		-- If the zombie players structures should also experiance decay
 		StructuresDecay = true,
 
 		SpeedBuffs = SpeedBuffs,
-		DecayRates = DecayRates
+		DecayRates = DecayRates,
+		BuildRates = BuildRates
 	}
 
 	LOG("    ::Zombies:: ArmyIndex: " .. ScenarioInfo.Zombie.ArmyIndex)
 	LOG("    ::Zombies:: Vampire: " .. ScenarioInfo.Zombie.VampirePercentage)
 	LOG("    ::Zombies:: SpeedBuff: " .. ScenarioInfo.Zombie.SpeedBuff)
 	LOG("    ::Zombies:: Decay Rate: " .. ScenarioInfo.Zombie.DecayRate)
+	LOG("    ::Zombies:: Build Rate: " .. ScenarioInfo.Zombie.BuildRate)
 
 end
 
