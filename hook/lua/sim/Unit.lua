@@ -10,11 +10,10 @@ do
 		OnCreate = function(self)
 			oUnit.OnCreate(self)
 
-			-- Don't try to set this up yet
+			
 			if not ScenarioInfo.ZombiesInitilized then return end
 
-			
-
+			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
 
 			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
 			local selfAiBrain = self:GetAIBrain()
@@ -24,27 +23,11 @@ do
 				EntityCategoryContains(categories.CARRIER, self) or
 				EntityCategoryContains(categories.SUBCOMMANDER, self) then
 
-				--SPEW("::Zombies:: buildrate " .. self:GetBlueprint().Economy.BuildRate)
 
 				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
-					if not Buffs["ZombieBuildRate"] then
-						SPEW("::Zombies:: Creating buff")
-						BuffBlueprint {
-							Name = "ZombieBuildRate",
-							DisplayName = "ZombieBuildRate",
-							BuffType = "ZOMBIE_BuildRate",
-							Stacks = 'ALWAYS',
-							Duration = -1,
-							Affects = {
-								BuildRate = {
-									Add = 0,
-									Mult = 5.0
-								},
-							},
-						}
-					end
-					--SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
-					Buff.ApplyBuff(self, "ZombieBuildRate" )
+					SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
+					SPEW(ScenarioInfo.Zombie.BuildRate)
+					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
 				end
 			end
 
