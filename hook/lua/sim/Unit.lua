@@ -7,7 +7,49 @@ do
     Unit = Class(oUnit) {
 		IsZombie = false,
 
+		OnCreate = function(self)
+			oUnit.OnCreate(self)
 
+			-- Don't try to set this up yet
+			if not ScenarioInfo.ZombiesInitilized then return end
+
+			
+
+
+			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
+			local selfAiBrain = self:GetAIBrain()
+
+			if  EntityCategoryContains(categories.ENGINEER, self) or
+				EntityCategoryContains(categories.FACTORY, self) or
+				EntityCategoryContains(categories.CARRIER, self) or
+				EntityCategoryContains(categories.SUBCOMMANDER, self) then
+
+				--SPEW("::Zombies:: buildrate " .. self:GetBlueprint().Economy.BuildRate)
+
+				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
+					if not Buffs["ZombieBuildRate"] then
+						SPEW("::Zombies:: Creating buff")
+						BuffBlueprint {
+							Name = "ZombieBuildRate",
+							DisplayName = "ZombieBuildRate",
+							BuffType = "ZOMBIE_BuildRate",
+							Stacks = 'ALWAYS',
+							Duration = -1,
+							Affects = {
+								BuildRate = {
+									Add = 0,
+									Mult = 5.0
+								},
+							},
+						}
+					end
+					--SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
+					Buff.ApplyBuff(self, "ZombieBuildRate" )
+				end
+			end
+
+
+		end,
 
 		DoTakeDamage = function(self, instigator, amount, vector, damageType)
 			local ok,msg = pcall(self.HandleDoTakeDamage, self, instigator, amount, vector, damageType)
