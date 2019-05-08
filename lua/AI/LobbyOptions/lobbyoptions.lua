@@ -97,5 +97,53 @@ AIOpts = {
                 key = 'VeryFast',
             }
         }
+    },
+    {
+        default = 1,
+        label = "<LOC zombies_0007>Zombies: Build Rate",
+        help = "<LOC zombies_0008>The Build Raate Multiplier for the Zombie player",
+        key = 'ZombieBuildRate',
+        values = {
+            {
+                text = "<LOC zombies_00019>None",
+                help = "<LOC zombies_00020>Vanilla build rate",
+                key = '1',
+            },
+            {
+                text = "<LOC zombies_00021>1.25x",
+                help = "",
+                key = '1.25',
+            },
+            {
+                text = "<LOC zombies_00023>1.5x",
+                help = "",
+                key = '1.5',
+            },
+            {
+                text = "<LOC zombies_00025>1.75x",
+                help = "",
+                key = '1.75',
+            },
+            {
+                text = "<LOC zombies_00027>2.0x",
+                help = "",
+                key = '2.0',
+            },
+            {
+                text = "<LOC zombies_00027>2.5x",
+                help = "",
+                key = '2.5',
+            },
+            {
+                text = "<LOC zombies_00027>3.0x",
+                help = "",
+                key = '3.0',
+            },
+            {
+                text = "<LOC zombies_00027>4.0x",
+                help = "",
+                key = '4.0',
+            }
+        }
     }
 }
