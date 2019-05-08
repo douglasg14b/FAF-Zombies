@@ -1,37 +1,13 @@
 do
-    AreZombiesSetup = false
-
-	ZombieSettings = nil
-
-	SetupZombies = function()
-		--> Set up unit-globally accessable settings
-		ZombieSettings = ScenarioInfo.Zombie;
-
-		LOG("::Zombies:: LISTING ABRAINS");
-		for aindex, abrain in ArmyBrains do
-			SPEW("::Zombies:: " .. abrain.Name);
-			if 
-				abrain.Name == "ARMY_" .. ZombieSettings.ArmyIndex
-			then
-				ZombieSettings.ArmyName = abrain.Name
-				ZombieSettings.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
-				ZombieSettings.ArmyIndex = abrain:GetArmyIndex();
-				ZombieSettings.ZombiesSetup = true
-
-				AreZombiesSetup = true;
-				LOG("::Zombies:: Zombie army found: " .. ZombieSettings.PlayerName);
-				
-				return
-			end
-		end
-		if AreZombiesSetup then return end
-		WARN("::Zombies:: Could not find a suitable army to assign zombies to, so this will most likely crash.")
-	end
+	-- Set field as siminit runs after this hook
+    ScenarioInfo.ZombiesInitilized = false
 
     local oUnit = Unit;
 
     Unit = Class(oUnit) {
 		IsZombie = false,
+
+
 
 		DoTakeDamage = function(self, instigator, amount, vector, damageType)
 			local ok,msg = pcall(self.HandleDoTakeDamage, self, instigator, amount, vector, damageType)
@@ -44,8 +20,9 @@ do
 		end,
 
 		HandleDoTakeDamage = function(self, instigator, amount, vector, damageType)			
-			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
-			
+			--if not ScenarioInfo.ZombiesInitilized then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
+			if not ScenarioInfo.ZombiesInitilized then return end
+
 			-- Get AIs of the player who damaged the unit and the player who took damage
 			local selfAiBrain = self:GetAIBrain();
 			local instigatorAiBrain = instigator:GetAIBrain();
@@ -55,10 +32,10 @@ do
 			if preAdjHealth - amount > 0 then  -- Unit damaged, but not killed
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif self.IsZombie or not AreZombiesSetup then -- Unit killed, but is a zombie
+			elseif self.IsZombie or not ScenarioInfo.ZombiesInitilized then -- Unit killed, but is a zombie
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
-			elseif selfAiBrain.Name ~= ZombieSettings.ArmyName then -- Unit killed, is not a zombie, but belongs to the zombie army
+			elseif selfAiBrain.Name ~= ScenarioInfo.Zombie.ArmyName then -- Unit killed, is not a zombie, but belongs to the zombie army
 				-- SPEW("::Zombies:: Unit Killed: Self: " .. self:GetArmy() .. " Instigator: " .. instigator:GetArmy())
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 				return
@@ -119,64 +96,67 @@ do
 		end,
 
 		CreateWreckage = function( self, overkillRatio )
-			if not AreZombiesSetup then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
+			--if not ScenarioInfo.ZombiesInitilized then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
+			if not ScenarioInfo.ZombiesInitilized then return end
 
 			local selfArmy = self:GetArmy()
 			
 			-- Zombies die normally
-			if self.IsZombie or not AreZombiesSetup then
+			if self.IsZombie or not ScenarioInfo.ZombiesInitilized then
 				oUnit.CreateWreckage( self, overkillRatio )
 			
 			-- Self-destruct/suicide doesn't turn into zombies. Zombie player suicides still turn into zombies
-			elseif ArmyBrains[selfArmy].LastUnitKilledBy == selfArmy and selfArmy ~= ZombieSettings.ArmyIndex  then
+			elseif ArmyBrains[selfArmy].LastUnitKilledBy == selfArmy and selfArmy ~= ScenarioInfo.Zombie.ArmyIndex  then
 				oUnit.CreateWreckage( self, overkillRatio )
 			else
 			    -- Something like this may need to happen to fix survivals:
-			    -- if self.GetArmy().Name == "ARMY_9" then ZombieSettings.ArmyName = "NEUTRAL_CIVILIAN" end
+			    -- if self.GetArmy().Name == "ARMY_9" then ScenarioInfo.Zombie.ArmyName = "NEUTRAL_CIVILIAN" end
 				self:ForkThread( self.Zombify, self )
 			end
 		end,
 
 		-- Turns the unit into a zombie unit
 		Zombify = function ( self )
-			if not AreZombiesSetup then SetupZombies() end	
+			--if not ScenarioInfo.ZombiesInitilized then SetupZombies() end	
+			if not ScenarioInfo.ZombiesInitilized then return end
+
 			local pos = self:GetPosition()
 			local bpid = self:GetBlueprint().BlueprintId
-			if not AreZombiesSetup or self:IsBeingBuilt() then return end
+			if not ScenarioInfo.ZombiesInitilized or self:IsBeingBuilt() then return end
 
-			local newzom = CreateUnitHPR(bpid, ZombieSettings.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
+			local newzom = CreateUnitHPR(bpid, ScenarioInfo.Zombie.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
 			newzom.IsZombie = true
 
 			--> Structures don't get decay buff if it's not enabled
-			if EntityCategoryContains(categories.STRUCTURE, newzom) and not ZombieSettings.StructuresDecay then 
+			if EntityCategoryContains(categories.STRUCTURE, newzom) and not ScenarioInfo.Zombie.StructuresDecay then 
 				return
 			end
 			
 			
 			-- Set Speed multiplyer for unit
-			if (not EntityCategoryContains(categories.STRUCTURE, newzom) and ZombieSettings.SpeedBuff > 0) then
-				newzom:SetSpeedMult(ZombieSettings.SpeedBuff)
-				newzom:SetAccMult(ZombieSettings.SpeedBuff)
-				newzom:SetTurnMult(ZombieSettings.SpeedBuff)
+			if (not EntityCategoryContains(categories.STRUCTURE, newzom) and ScenarioInfo.Zombie.SpeedBuff > 0) then
+				newzom:SetSpeedMult(ScenarioInfo.Zombie.SpeedBuff)
+				newzom:SetAccMult(ScenarioInfo.Zombie.SpeedBuff)
+				newzom:SetTurnMult(ScenarioInfo.Zombie.SpeedBuff)
 			end
 			
 
 			--> If decay rate isn't none
-			if(ZombieSettings.DecayRate ~= 0) then
-				newzom:ForkThread(newzom.DecayUnit, newzom)
+			if(ScenarioInfo.Zombie.DecayRate ~= 0) then
+				newzom:ForkThread(newzom.DecayUnitLoop, newzom)
 			end
 
 		end,
 
-		DecayUnit = function(self)
+		DecayUnitLoop = function(self)
 			WaitSeconds(5); --Delay start of decay by 5 seconds
 
 			local maxHealth = self:GetMaxHealth()
 			local damagePerTick = 0;
 
 			--> If decay rate isn't dynamic
-			if(ZombieSettings.DecayRate ~= -1) then
-				damagePerTick = math.floor(math.max(1, maxHealth / (ZombieSettings.DecayRate * 60)));
+			if(ScenarioInfo.Zombie.DecayRate ~= -1) then
+				damagePerTick = math.floor(math.max(1, maxHealth / (ScenarioInfo.Zombie.DecayRate * 60)));
 			end
 
 
@@ -186,9 +166,9 @@ do
 				local health = math.min(self:GetHealth(), maxHealth)
 
 				--> Dynamic decay rate reduced as health is lower
-				if(ZombieSettings.DecayRate == -1) then
+				if(ScenarioInfo.Zombie.DecayRate == -1) then
 					local percentageOfMax = health / maxHealth
-					local normalDamageRate = health / (ZombieSettings.DecayRates.Normal * 60)
+					local normalDamageRate = health / (ScenarioInfo.Zombie.DecayRates.Normal * 60)
 
 					--> Modifies the rate to make a log curve
 					local rateModifyer = math.pow(percentageOfMax, 1.2)

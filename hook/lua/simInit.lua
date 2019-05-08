@@ -12,6 +12,7 @@ end
 function ZombieSimThread()
 	LOG("::Zombies:: Starting sim thread")
 	SetZombiesSettings()
+	FindZombieArmy();
 
 	WaitSeconds(2)
 	Sync.zAlert = { "Welcome", "to the Zombie horde..." };
@@ -67,9 +68,31 @@ function SetZombiesSettings()
 	LOG("    ::Zombies:: SpeedBuff: " .. ScenarioInfo.Zombie.SpeedBuff)
 	LOG("    ::Zombies:: Decay Rate: " .. ScenarioInfo.Zombie.DecayRate)
 
-
-
 end
+
+
+function FindZombieArmy()
+
+	LOG("::Zombies:: Finding Zombie Army");
+	for aindex, abrain in ArmyBrains do
+		if 
+			abrain.Name == "ARMY_" .. ScenarioInfo.Zombie.ArmyIndex
+		then
+			ScenarioInfo.Zombie.ArmyName = abrain.Name
+			ScenarioInfo.Zombie.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
+			ScenarioInfo.Zombie.ArmyIndex = abrain:GetArmyIndex();
+			ScenarioInfo.Zombie.ZombiesSetup = true
+
+			ScenarioInfo.ZombiesInitilized = true;
+
+			LOG("::Zombies:: Zombie army found and set: " .. ScenarioInfo.Zombie.PlayerName);
+			return
+		end
+	end
+	if ScenarioInfo.ZombiesInitilized then return end
+	WARN("::Zombies:: Could not find a suitable army to assign zombies to, so this will most likely crash.")
+end
+
 --SPEW("::Zombies:: Sending Welcome Alert")
 
 --local parent = import('/lua/ui/game/borders.lua').GetMapGroup()
