@@ -4,8 +4,7 @@ local modPath = 'Zombies'
 local ParentBeginSession = BeginSession
 function BeginSession()
 	ParentBeginSession()
-	ForkThread(import('/mods/'..modPath..'/lua/Vampire.lua').VampireResourceThread)
-
+	
 	local zomThread = ForkThread(ZombieSimThread)
 end
 
@@ -16,6 +15,7 @@ function ZombieSimThread()
 
 	WaitSeconds(2)
 	Sync.zAlert = { "Welcome", "to the Zombie horde..." };
+	ForkThread(import('/mods/'..modPath..'/lua/Vampire.lua').VampireResourceThread)
 end
 
 function SetZombiesSettings()
