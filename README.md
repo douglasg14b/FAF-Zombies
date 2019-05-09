@@ -67,6 +67,21 @@ This lets you set a decay rate for zombified units. This causes the units (and b
 * Fast: Decay within 3 minutes
 * Very Fast: Decay within 1 minutes
 
+### Zombie Player Build Rate
+
+This increases the build rate of the player in the Zombie slot.
+
+**Options**:
+
+  * None
+  * 1.25x
+  * 1.5x
+  * 1.75x
+  * 2x
+  * 2.5x
+  * 3x
+  * 4x
+
 **Notes:**
 
 * Regen or repair extneds the lifespan of units with time-based decay
