@@ -11,7 +11,11 @@ local state = {
 	delta = { 
         mass = {}, 
         energy = {} 
-    },
+	},
+	totals = {
+		mass= 0,
+		energy = 0
+	},
 	trash = nil
 }
 
@@ -31,6 +35,10 @@ function VampireResourceThread()
 
 					brain:GiveResource('MASS', deltaMass)
 					brain:GiveResource('ENERGY', deltaEnergy)
+
+					state.totals.mass = state.totals.mass + deltaMass
+					state.totals.energy = state.totals.energy + deltaEnergy
+
 				end
 				state.delta.mass[army] = mass
 				state.delta.energy[army] = energy
