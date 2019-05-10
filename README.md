@@ -67,6 +67,12 @@ This lets you set a decay rate for zombified units. This causes the units (and b
 * Fast: Decay within 3 minutes
 * Very Fast: Decay within 1 minutes
 
+**Notes:**
+
+* Regen or repair extends the lifespan of units with time-based decay
+* Dynamic decay, in practice, will not kill units as the decay rate decreases as the units health decreases.
+* This only applies to zombified units. The zombie plyers untis are NOT zombified by defualt, they have to be killed once to become zombies. This is likely to change in the future.
+
 ### Zombie Player Build Rate
 
 This increases the build rate of the player in the Zombie slot.
@@ -81,12 +87,6 @@ This increases the build rate of the player in the Zombie slot.
   * 2.5x
   * 3x
   * 4x
-
-**Notes:**
-
-* Regen or repair extneds the lifespan of units with time-based decay
-* Dynamic decay, in practice, will not kill units as the decay rate decreases as the units health decreases.
-* This only applies to zombified units. The zombie plyers untis are NOT zombified by defualt, they have to be killed once to become zombies. This is likely to change in the future.
 
 ## What's Different?
 
