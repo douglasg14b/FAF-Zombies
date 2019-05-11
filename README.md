@@ -75,7 +75,7 @@ This lets you set a decay rate for zombified units. This causes the units (and b
 
 ### Zombie Player Build Rate
 
-This increases the build rate of the player in the Zombie slot.
+This increases the build rate of the player in the Zombie slot. This buff does not apply to the commander or other starting units. This was a technical challenge that I decided to keep since the commanders being buffed might be too OP.
 
 **Options**:
 
