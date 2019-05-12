@@ -1,6 +1,7 @@
 do
-	-- Set field as siminit runs after this hook
-    ScenarioInfo.ZombiesInitilized = false
+	-- Set fields as siminit runs after this hook
+	ScenarioInfo.ZombiesInitilized = false
+	ScenarioInfo.ZombiesFailedToInit = false
 
     local oUnit = Unit;
 
@@ -9,11 +10,11 @@ do
 
 		OnCreate = function(self)
 			oUnit.OnCreate(self)
-
-			
 			if not ScenarioInfo.ZombiesInitilized then return end
 
-			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
+			self.ApplyZombieBuiltRateBuff(self);
+
+--[[ 			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
 
 			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
 			local selfAiBrain = self:GetAIBrain()
@@ -29,7 +30,7 @@ do
 					SPEW(ScenarioInfo.Zombie.BuildRate)
 					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
 				end
-			end
+			end ]]
 
 
 		end,
@@ -138,34 +139,74 @@ do
 			end
 		end,
 
-		-- Turns the unit into a zombie unit
-		Zombify = function ( self )
+		ApplyZombieBuiltRateBuff = function(self)
+			-- Exit if not initilized
 			if not ScenarioInfo.ZombiesInitilized then return end
 
-			local pos = self:GetPosition()
-			local bpid = self:GetBlueprint().BlueprintId
-			if not ScenarioInfo.ZombiesInitilized or self:IsBeingBuilt() then return end
+			-- If no build rate applies, then return
+			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
 
-			local newzom = CreateUnitHPR(bpid, ScenarioInfo.Zombie.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
-			newzom.IsZombie = true
+			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
+			local selfAiBrain = self:GetAIBrain()
+
+			if  EntityCategoryContains(categories.ENGINEER, self) or
+				EntityCategoryContains(categories.FACTORY, self) or
+				EntityCategoryContains(categories.CARRIER, self) or
+				EntityCategoryContains(categories.SUBCOMMANDER, self) then
+
+
+				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
+					SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
+					SPEW(ScenarioInfo.Zombie.BuildRate)
+					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
+				end
+			end
+		end,
+
+		-- Turns the unit into a zombie unit
+		Zombify = function ( self )
+			--Exit if not initilized
+			if not ScenarioInfo.ZombiesInitilized then return end
+			-- Exit if the unit is being built, can't Zombify incomplete units.
+			-- TODO: Zombify incomplete units, use their build % as their health % when zombified? 
+			if self:IsBeingBuilt() then return end
+			
+			local armyIndex = self:GetArmy();
+			local zombieUnit;
+
+			-- Unit is not dead, and Zombie player zombification is off. Nothing needs to be done here
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead()then
+				return
+			end
+
+			-- If the unit is part of the zombie army, is not dead, and ZombieArmyZombification is on
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
+				--nothing for now. No new unit needs to be created, just marked as a zombie and buff/debuff
+			else
+				local pos = self:GetPosition()
+				local bpid = self:GetBlueprint().BlueprintId
+				zombieUnit = CreateUnitHPR(bpid, ScenarioInfo.Zombie.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
+			end
+
+			zombieUnit.IsZombie = true
 
 			--> Structures don't get decay buff if it's not enabled
-			if EntityCategoryContains(categories.STRUCTURE, newzom) and not ScenarioInfo.Zombie.StructuresDecay then 
+			if EntityCategoryContains(categories.STRUCTURE, zombieUnit) and not ScenarioInfo.Zombie.StructuresDecay then 
 				return
 			end
 			
-			
-			-- Set Speed multiplyer for unit
-			if (not EntityCategoryContains(categories.STRUCTURE, newzom) and ScenarioInfo.Zombie.SpeedBuff > 0) then
-				newzom:SetSpeedMult(ScenarioInfo.Zombie.SpeedBuff)
-				newzom:SetAccMult(ScenarioInfo.Zombie.SpeedBuff)
-				newzom:SetTurnMult(ScenarioInfo.Zombie.SpeedBuff)
+			-- Set Speed multiplyer for unit if it's on and isn't a structure
+			-- TODO: Use a buff instead in the future
+			if (not EntityCategoryContains(categories.STRUCTURE, zombieUnit) and ScenarioInfo.Zombie.SpeedBuff > 0) then
+				zombieUnit:SetSpeedMult(ScenarioInfo.Zombie.SpeedBuff)
+				zombieUnit:SetAccMult(ScenarioInfo.Zombie.SpeedBuff)
+				zombieUnit:SetTurnMult(ScenarioInfo.Zombie.SpeedBuff)
 			end
 			
 
-			--> If decay rate isn't none
+			--> If decay rate isn't none, start decay
 			if(ScenarioInfo.Zombie.DecayRate ~= 0) then
-				newzom:ForkThread(newzom.DecayUnitLoop, newzom)
+				zombieUnit:ForkThread(zombieUnit.DecayUnitLoop, zombieUnit)
 			end
 
 		end,
@@ -217,5 +258,6 @@ do
 				WaitTicks(waitTicks)
 			end
 		end
+
     }
 end
