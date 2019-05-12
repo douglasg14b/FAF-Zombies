@@ -55,9 +55,9 @@ function SetZombiesSettings()
 
 	ScenarioInfo.Zombie = {
 		-- If the Zombie army has been selected
-		ZombiesInitilized = false,
+		Initilized = false,
 		-- If the setup failed
-		ZombiesFailedToInit = false,
+		FailedToInitilized = false,
 		-- The players actual name
 		PlayerName = "",
 		-- The Army slot name. ie ARMY_7
@@ -109,19 +109,23 @@ function FindZombieArmy()
 			ScenarioInfo.Zombie.ArmyName = abrain.Name
 			ScenarioInfo.Zombie.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
 			ScenarioInfo.Zombie.ArmyIndex = abrain:GetArmyIndex();
-			ScenarioInfo.ZombiesInitilized = true;
+			ScenarioInfo.Zombie.Initilized = abrain:GetArmyIndex();
+
+			ScenarioInfo.ZombiesInitilized = true; -- Used by scripts that start before siminit
 
 			LOG("::Zombies:: Zombie army found and set:");
-			LOG("    ::Zombies:: Army Index" .. ScenarioInfo.Zombie.ArmyName);
-			LOG("    ::Zombies:: Army Name" .. ScenarioInfo.Zombie.ArmyIndex);
-			LOG("    ::Zombies:: Player Name" .. ScenarioInfo.Zombie.PlayerName);
+			LOG("    ::Zombies:: Army Index: " .. ScenarioInfo.Zombie.ArmyName);
+			LOG("    ::Zombies:: Army Name: " .. ScenarioInfo.Zombie.ArmyIndex);
+			LOG("    ::Zombies:: Player Name: " .. ScenarioInfo.Zombie.PlayerName);
 
 			return
 		end
 	end
-	if ScenarioInfo.Zombie.ZombiesInitilized then return end
+	if ScenarioInfo.Zombie.Initilized then return end
 
-	ScenarioInfo.Zombie.ZombiesFailedToInit = true;
+	ScenarioInfo.ZombiesFailedToInitilized = true; -- Used by scripts that start before siminit
+	ScenarioInfo.Zombie.FailedToInitilized = true;
+
 	WARN("::Zombies:: Could not find a suitable army to assign zombies to.")
 end
 
