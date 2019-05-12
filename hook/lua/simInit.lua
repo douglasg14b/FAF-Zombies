@@ -55,7 +55,9 @@ function SetZombiesSettings()
 
 	ScenarioInfo.Zombie = {
 		-- If the Zombie army has been selected
-		ZombiesSetup = false,
+		ZombiesInitilized = false,
+		-- If the setup failed
+		ZombiesFailedToInit = false,
 		-- The players actual name
 		PlayerName = "",
 		-- The Army slot name. ie ARMY_7
@@ -91,8 +93,8 @@ function SetZombiesSettings()
 	LOG("    ::Zombies:: Build Rate: " .. ScenarioInfo.Zombie.BuildRate)
 
 
-	LOG("    ::Zombies:: Building Decay: " .. ScenarioInfo.Zombie.StructuresDecay)
-	LOG("    ::Zombies:: Zombie Player Zombified: " .. ScenarioInfo.Zombie.ZombieArmyZombification)
+	LOG("    ::Zombies:: Building Decay: " .. (ScenarioInfo.Zombie.StructuresDecay and 'true' or 'false'))
+	LOG("    ::Zombies:: Zombie Player Zombified: " .. (ScenarioInfo.Zombie.ZombieArmyZombification and 'true' or 'false'))
 
 end
 
@@ -107,8 +109,6 @@ function FindZombieArmy()
 			ScenarioInfo.Zombie.ArmyName = abrain.Name
 			ScenarioInfo.Zombie.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
 			ScenarioInfo.Zombie.ArmyIndex = abrain:GetArmyIndex();
-			ScenarioInfo.Zombie.ZombiesSetup = true
-
 			ScenarioInfo.ZombiesInitilized = true;
 
 			LOG("::Zombies:: Zombie army found and set:");
@@ -119,8 +119,9 @@ function FindZombieArmy()
 			return
 		end
 	end
-	if ScenarioInfo.ZombiesInitilized then return end
+	if ScenarioInfo.Zombie.ZombiesInitilized then return end
 
+	ScenarioInfo.Zombie.ZombiesFailedToInit = true;
 	WARN("::Zombies:: Could not find a suitable army to assign zombies to.")
 end
 
