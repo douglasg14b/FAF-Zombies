@@ -58,10 +58,12 @@ function SetZombiesSettings()
 		ZombiesSetup = false,
 		-- The players actual name
 		PlayerName = "",
-		-- The Army slot anme. ie ARMY_7
+		-- The Army slot name. ie ARMY_7
 		ArmyName = "",
-		-- The Army index (slot#)
-		ArmyIndex = ScenarioInfo.Options.ZombieArmy,
+		-- The slot# of the zombie army
+		ArmySlot = ScenarioInfo.Options.ZombieArmy,
+		-- The Army index. This is set when the zombie player is found. Is not related to slot#
+		ArmyIndex = 0,
 		-- The percentage of mass & energy vampire that is applied to kills
 		VampirePercentage = tonumber(ScenarioInfo.Options.VampirePercentage),
 		-- The speed buff zombie units get
@@ -71,7 +73,7 @@ function SetZombiesSettings()
 		-- The Zombie players build rate
 		BuildRate = tonumber(ScenarioInfo.Options.ZombieBuildRate),
 
-		
+
 		-- If the zombie players structures should also experiance decay when there is a decay rate
 		StructuresDecay = true,
 		-- When true all Zombie player units are zombified immediately upon creation.
@@ -82,7 +84,7 @@ function SetZombiesSettings()
 		BuildRates = BuildRates
 	}
 
-	LOG("    ::Zombies:: ArmyIndex: " .. ScenarioInfo.Zombie.ArmyIndex)
+	LOG("    ::Zombies:: ArmySlot: " .. ScenarioInfo.Zombie.ArmySlot)
 	LOG("    ::Zombies:: Vampire: " .. ScenarioInfo.Zombie.VampirePercentage)
 	LOG("    ::Zombies:: SpeedBuff: " .. ScenarioInfo.Zombie.SpeedBuff)
 	LOG("    ::Zombies:: Decay Rate: " .. ScenarioInfo.Zombie.DecayRate)
@@ -100,7 +102,7 @@ function FindZombieArmy()
 	LOG("::Zombies:: Finding Zombie Army");
 	for aindex, abrain in ArmyBrains do
 		if 
-			abrain.Name == "ARMY_" .. ScenarioInfo.Zombie.ArmyIndex
+			abrain.Name == "ARMY_" .. ScenarioInfo.Zombie.ArmySlot
 		then
 			ScenarioInfo.Zombie.ArmyName = abrain.Name
 			ScenarioInfo.Zombie.PlayerName = ArmyBrains[abrain:GetArmyIndex()].Nickname
@@ -109,12 +111,17 @@ function FindZombieArmy()
 
 			ScenarioInfo.ZombiesInitilized = true;
 
-			LOG("::Zombies:: Zombie army found and set: " .. ScenarioInfo.Zombie.PlayerName);
+			LOG("::Zombies:: Zombie army found and set:");
+			LOG("    ::Zombies:: Army Index" .. ScenarioInfo.Zombie.ArmyName);
+			LOG("    ::Zombies:: Army Name" .. ScenarioInfo.Zombie.ArmyIndex);
+			LOG("    ::Zombies:: Player Name" .. ScenarioInfo.Zombie.PlayerName);
+
 			return
 		end
 	end
 	if ScenarioInfo.ZombiesInitilized then return end
-	WARN("::Zombies:: Could not find a suitable army to assign zombies to, so this will most likely crash.")
+
+	WARN("::Zombies:: Could not find a suitable army to assign zombies to.")
 end
 
 --SPEW("::Zombies:: Sending Welcome Alert")
