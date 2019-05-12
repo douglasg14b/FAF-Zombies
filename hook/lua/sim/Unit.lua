@@ -45,7 +45,6 @@ do
 		end,
 
 		HandleDoTakeDamage = function(self, instigator, amount, vector, damageType)			
-			--if not ScenarioInfo.ZombiesInitilized then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			if not ScenarioInfo.ZombiesInitilized then return end
 
 			-- Get AIs of the player who damaged the unit and the player who took damage
@@ -121,7 +120,6 @@ do
 		end,
 
 		CreateWreckage = function( self, overkillRatio )
-			--if not ScenarioInfo.ZombiesInitilized then LOG("::Zombies:: Setting up Zombies");  SetupZombies() end
 			if not ScenarioInfo.ZombiesInitilized then return end
 
 			local selfArmy = self:GetArmy()
@@ -142,7 +140,6 @@ do
 
 		-- Turns the unit into a zombie unit
 		Zombify = function ( self )
-			--if not ScenarioInfo.ZombiesInitilized then SetupZombies() end	
 			if not ScenarioInfo.ZombiesInitilized then return end
 
 			local pos = self:GetPosition()
