@@ -15,7 +15,7 @@ function ZombieSimThread()
 
 	WaitSeconds(2)
 	Sync.zAlert = { "Welcome", "to the Zombie horde..." };
-	
+
 	ForkThread(import('/mods/'..modPath..'/lua/Vampire.lua').VampireResourceThread)
 end
 
@@ -70,8 +70,12 @@ function SetZombiesSettings()
 		DecayRate = DecayRates[ScenarioInfo.Options.ZombieDecay],
 		-- The Zombie players build rate
 		BuildRate = tonumber(ScenarioInfo.Options.ZombieBuildRate),
-		-- If the zombie players structures should also experiance decay
+
+		
+		-- If the zombie players structures should also experiance decay when there is a decay rate
 		StructuresDecay = true,
+		-- When true all Zombie player units are zombified immediately upon creation.
+		ZombieArmyZombification = true,
 
 		SpeedBuffs = SpeedBuffs,
 		DecayRates = DecayRates,
@@ -83,6 +87,10 @@ function SetZombiesSettings()
 	LOG("    ::Zombies:: SpeedBuff: " .. ScenarioInfo.Zombie.SpeedBuff)
 	LOG("    ::Zombies:: Decay Rate: " .. ScenarioInfo.Zombie.DecayRate)
 	LOG("    ::Zombies:: Build Rate: " .. ScenarioInfo.Zombie.BuildRate)
+
+
+	LOG("    ::Zombies:: Building Decay: " .. ScenarioInfo.Zombie.StructuresDecay)
+	LOG("    ::Zombies:: Zombie Player Zombified: " .. ScenarioInfo.Zombie.ZombieArmyZombification)
 
 end
 
