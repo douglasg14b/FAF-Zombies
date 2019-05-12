@@ -257,7 +257,21 @@ do
 
 				WaitTicks(waitTicks)
 			end
-		end
+		end,
 
+		--Will defer to call until the mod is fully initilized
+		DeferTillInitilized = function(self, callback)
+			while not ScenarioInfo.ZombiesInitilized do
+				WaitSeconds(0.1)
+
+				-- If it failed to start, exit deferral
+				if ScenarioInfo.ZombiesFailedToInit then
+					WARN('::Zombies:: Cancelling callback deferral, zombies failed to initilize')
+					return
+				end
+			end
+
+			callback(self)
+		end
     }
 end
