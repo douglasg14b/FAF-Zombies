@@ -2,6 +2,7 @@ do
 	-- Set fields as siminit runs after this hook
 	ScenarioInfo.ZombiesInitilized = false
 	ScenarioInfo.ZombiesFailedToInit = false
+	DebugMode = true
 
     local oUnit = Unit;
 
@@ -10,9 +11,16 @@ do
 
 		OnCreate = function(self)
 			oUnit.OnCreate(self)
-			if not ScenarioInfo.ZombiesInitilized then return end
 
-			self.ApplyZombieBuiltRateBuff(self);
+			if not ScenarioInfo.ZombiesInitilized then 
+				self:ForkThread(self.DeferTillInitilized, self.SetupZombieUnit)
+				return
+			end
+
+			local armyIndex = self:GetArmy();
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex then
+				self.SetupZombieUnit(self)
+			end
 
 --[[ 			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
 
@@ -33,6 +41,20 @@ do
 			end ]]
 
 
+		end,
+
+		-- Called for the initial OnCreate
+		SetupZombieUnit = function(self)
+			local armyIndex = self:GetArmy();
+			--> Not a Zombie army unit, return
+			if ScenarioInfo.Zombie.ArmyIndex ~= armyIndex then
+				return
+			end
+
+			if DebugMode then SPEW('::Zombies:: SetupZombieUnit Called for Unit: ' .. self:GetEntityId()) end
+
+			self.ApplyZombieBuiltRateBuff(self);
+			self.Zombify(self);
 		end,
 
 		DoTakeDamage = function(self, instigator, amount, vector, damageType)
@@ -66,6 +88,11 @@ do
 				return
 			end
 
+
+			 ------------------------------------
+			 -- Handle Zombie Army Frist Death --
+			 ------------------------------------
+
 			local overkillRatio = 0.0
 			local excess = preAdjHealth - amount
 			local maxHealth = self:GetMaxHealth()
@@ -91,11 +118,12 @@ do
 			instigatorAiBrain:GiveResource('MASS', massCost * tonumber(ScenarioInfo.Options.VampirePercentage))
 			instigatorAiBrain:GiveResource('ENERGY', energyCost * tonumber(ScenarioInfo.Options.VampirePercentage))
 
-			self:ForkThread( self.HandlePseudoDeath, self, instigator,  overkillRatio)
+			self:ForkThread( self.HandlePseudoDeath, instigator,  overkillRatio)
 			self:AdjustHealth(self, maxHealth)
 		end,
 
-		-- Provides the death/explosion sound and animation
+		-- Provides the death/explosion sound and animation.
+		-- Only used when a non-zombie unit of the zombie army dies
 		HandlePseudoDeath = function(self, instigator, overkillRatio)
 			local layer = self:GetCurrentLayer()
 			local bp = self:GetBlueprint()
@@ -140,8 +168,12 @@ do
 		end,
 
 		ApplyZombieBuiltRateBuff = function(self)
-			-- Exit if not initilized
-			if not ScenarioInfo.ZombiesInitilized then return end
+			if not self then return end -- unit no longer exists
+			-- Defer and exit if not initilized
+			if not ScenarioInfo.ZombiesInitilized then
+				self:ForkThread(self.DeferTillInitilized, self.ApplyZombieBuiltRateBuff)
+				return
+			end
 
 			-- If no build rate applies, then return
 			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
@@ -156,8 +188,9 @@ do
 
 
 				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
-					SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
-					SPEW(ScenarioInfo.Zombie.BuildRate)
+					if DebugMode then SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId()) end
+					if DebugMode then SPEW("    " .. ScenarioInfo.Zombie.BuildRate)  end
+
 					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
 				end
 			end
@@ -165,27 +198,40 @@ do
 
 		-- Turns the unit into a zombie unit
 		Zombify = function ( self )
-			--Exit if not initilized
-			if not ScenarioInfo.ZombiesInitilized then return end
+			if not self then return end -- unit no longer exists
+
+			local armyIndex = self:GetArmy();
+			local zombieUnit;
+
+			-- Defer and exit if not initilized
+			if not ScenarioInfo.ZombiesInitilized then 
+				self:ForkThread(self.DeferTillInitilized, self.Zombify)
+				return
+			end
+
 			-- Exit if the unit is being built, can't Zombify incomplete units.
 			-- TODO: Zombify incomplete units, use their build % as their health % when zombified? 
 			if self:IsBeingBuilt() then return end
 			
-			local armyIndex = self:GetArmy();
-			local zombieUnit;
-
 			-- Unit is not dead, and Zombie player zombification is off. Nothing needs to be done here
-			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead()then
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
 				return
 			end
+
+			if DebugMode then SPEW('::Zombies:: Zombify called for unit: ' .. self:GetEntityId()) end
 
 			-- If the unit is part of the zombie army, is not dead, and ZombieArmyZombification is on
 			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
 				--nothing for now. No new unit needs to be created, just marked as a zombie and buff/debuff
+				zombieUnit = self
 			else
+				if DebugMode then SPEW('::Zombies:: Zombifying killed unit: ' .. self:GetEntityId()) end
+
 				local pos = self:GetPosition()
 				local bpid = self:GetBlueprint().BlueprintId
 				zombieUnit = CreateUnitHPR(bpid, ScenarioInfo.Zombie.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
+
+				if DebugMode then SPEW('::Zombies:: New Zombie Created from killed unit: ' .. zombieUnit:GetEntityId()) end
 			end
 
 			zombieUnit.IsZombie = true
@@ -250,7 +296,6 @@ do
 				if(health - damagePerTick <= 0) then
 					self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
 				else
-					SPEW("::Zombies:: using SetHealth")
 					--self:SetHealth(self, health - damagePerTick)
 					self:AdjustHealth(self, -damagePerTick)
 				end
@@ -261,6 +306,7 @@ do
 
 		--Will defer to call until the mod is fully initilized
 		DeferTillInitilized = function(self, callback)
+			if DebugMode then SPEW('::Zombies:: Starting Deferral Thread for Unit: ' .. self:GetUnitId()) end
 			while not ScenarioInfo.ZombiesInitilized do
 				WaitSeconds(0.1)
 
@@ -270,6 +316,8 @@ do
 					return
 				end
 			end
+
+			if DebugMode then SPEW('::Zombies:: Calling deferred callback') end
 
 			callback(self)
 		end
