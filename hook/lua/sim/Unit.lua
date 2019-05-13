@@ -51,7 +51,14 @@ do
 				return
 			end
 
-			if DebugMode then SPEW('::Zombies:: SetupZombieUnit Called for Unit: ' .. self:GetEntityId()) end
+			local bp = self:GetBlueprint()
+
+			-- Avoid applying Zombie to things like effects
+			if EntityCategoryContains(categories.INSIGNIFICANTUNIT) or EntityCategoryContains(categories.UNTARGETABLE) then
+				return
+			end
+
+			if DebugMode then SPEW('::Zombies:: SetupZombieUnit Called for Unit: ' .. self:GetEntityId() .. ' | ' .. self:GetUnitId() .. ' | ' .. bp.Description) end
 
 			self.ApplyZombieBuiltRateBuff(self);
 			self.Zombify(self);
