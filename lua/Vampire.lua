@@ -25,6 +25,9 @@ function VampireResourceThread()
 	while true do
 		WaitSeconds(0.1)
 		for army, brain in ArmyBrains do
+			if state.totals.mass[army] == nil then state.totals.mass[army] = 0 end
+			if state.totals.energy[army] == nil then state.totals.energy[army] = 0 end
+
 			if ArmyIsOutOfGame(army) == false then
 				--brain = ArmyBrains[army]
 				local mass = brain:GetArmyStat("Enemies_MassValue_Destroyed",0.0).Value
