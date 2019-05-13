@@ -188,7 +188,7 @@ do
 
 
 				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
-					if DebugMode then SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId()) end
+					if DebugMode then SPEW("::Zombies:: Applying build rate buff to: " .. self:GetEntityId()) end
 					if DebugMode then SPEW("    " .. ScenarioInfo.Zombie.BuildRate)  end
 
 					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
@@ -200,31 +200,21 @@ do
 		Zombify = function ( self )
 			if not self then return end -- unit no longer exists
 
-			local armyIndex = self:GetArmy();
-			local zombieUnit;
-
 			-- Defer and exit if not initilized
 			if not ScenarioInfo.ZombiesInitilized then 
 				self:ForkThread(self.DeferTillInitilized, self.Zombify)
 				return
 			end
 
-			-- Exit if the unit is being built, can't Zombify incomplete units.
-			-- TODO: Zombify incomplete units, use their build % as their health % when zombified? 
-			if self:IsBeingBuilt() then return end
-			
-			-- Unit is not dead, and Zombie player zombification is off. Nothing needs to be done here
-			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
-				return
-			end
+			if not self.CanZombify(self) then return end
+
+			local armyIndex = self:GetArmy();
+			local zombieUnit = self;
 
 			if DebugMode then SPEW('::Zombies:: Zombify called for unit: ' .. self:GetEntityId()) end
 
-			-- If the unit is part of the zombie army, is not dead, and ZombieArmyZombification is on
-			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
-				--nothing for now. No new unit needs to be created, just marked as a zombie and buff/debuff
-				zombieUnit = self
-			else
+			-- If the unit is dead then create a zombie
+			if self:IsDead() then
 				if DebugMode then SPEW('::Zombies:: Zombifying killed unit: ' .. self:GetEntityId()) end
 
 				local pos = self:GetPosition()
@@ -232,6 +222,8 @@ do
 				zombieUnit = CreateUnitHPR(bpid, ScenarioInfo.Zombie.ArmyName, pos.x, pos.y, pos.z, 0, 0, 0)
 
 				if DebugMode then SPEW('::Zombies:: New Zombie Created from killed unit: ' .. zombieUnit:GetEntityId()) end
+
+				return -- Return as Unit will be zombified from OnCreate
 			end
 
 			zombieUnit.IsZombie = true
@@ -255,6 +247,21 @@ do
 				zombieUnit:ForkThread(zombieUnit.DecayUnitLoop, zombieUnit)
 			end
 
+		end,
+
+		CanZombify = function(self)
+			local armyIndex = self:GetArmy();
+
+			-- Exit if the unit is being built, can't Zombify incomplete units.
+			-- TODO: Zombify incomplete units, use their build % as their health % when zombified? 
+			if self:IsBeingBuilt() then return false end
+			
+			-- Unit is not dead, and Zombie player zombification is off. Nothing needs to be done here
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
+				return false
+			end
+
+			return true
 		end,
 
 		DecayUnitLoop = function(self)
