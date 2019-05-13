@@ -178,7 +178,7 @@ do
 			-- If no build rate applies, then return
 			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
 
-			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
+			local hasBuildRate = self:GetBlueprint().Economy.BuildRate > 1
 			local selfAiBrain = self:GetAIBrain()
 
 			if  EntityCategoryContains(categories.ENGINEER, self) or
