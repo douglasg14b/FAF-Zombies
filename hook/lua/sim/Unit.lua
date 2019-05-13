@@ -2,7 +2,7 @@ do
 	-- Set fields as siminit runs after this hook
 	ScenarioInfo.ZombiesInitilized = false
 	ScenarioInfo.ZombiesFailedToInit = false
-	DebugMode = true
+	DebugMode = false
 
     local oUnit = Unit;
 
@@ -22,25 +22,6 @@ do
 				self.SetupZombieUnit(self)
 			end
 
---[[ 			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
-
-			local hasBuildRate = self:GetBlueprint().Economy.BuildRate >= 1
-			local selfAiBrain = self:GetAIBrain()
-
-			if  EntityCategoryContains(categories.ENGINEER, self) or
-				EntityCategoryContains(categories.FACTORY, self) or
-				EntityCategoryContains(categories.CARRIER, self) or
-				EntityCategoryContains(categories.SUBCOMMANDER, self) then
-
-
-				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
-					SPEW("::Zombies:: Applying buff to: " .. self:GetEntityId())
-					SPEW(ScenarioInfo.Zombie.BuildRate)
-					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
-				end
-			end ]]
-
-
 		end,
 
 		-- Called for the initial OnCreate
@@ -54,7 +35,7 @@ do
 			local bp = self:GetBlueprint()
 
 			-- Avoid applying Zombie to things like effects
-			if EntityCategoryContains(categories.INSIGNIFICANTUNIT) or EntityCategoryContains(categories.UNTARGETABLE) then
+			if EntityCategoryContains(categories.INSIGNIFICANTUNIT, self) or EntityCategoryContains(categories.UNTARGETABLE, self) then
 				return
 			end
 
@@ -264,7 +245,7 @@ do
 			if self:IsBeingBuilt() then return false end
 			
 			-- Unit is not dead, and Zombie player zombification is off. Nothing needs to be done here
-			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombieArmyZombification and not self:IsDead() then
+			if ScenarioInfo.Zombie.ArmyIndex == armyIndex and not ScenarioInfo.Zombie.ZombifyByDefault and not self:IsDead() then
 				return false
 			end
 

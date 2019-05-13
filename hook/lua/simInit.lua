@@ -79,7 +79,7 @@ function SetZombiesSettings()
 		-- If the zombie players structures should also experiance decay when there is a decay rate
 		StructuresDecay = true,
 		-- When true all Zombie player units are zombified immediately upon creation.
-		ZombieArmyZombification = true,
+		ZombifyByDefault = true,
 
 		SpeedBuffs = SpeedBuffs,
 		DecayRates = DecayRates,
@@ -94,7 +94,7 @@ function SetZombiesSettings()
 
 
 	LOG("    ::Zombies:: Building Decay: " .. (ScenarioInfo.Zombie.StructuresDecay and 'true' or 'false'))
-	LOG("    ::Zombies:: Zombie Player Zombified: " .. (ScenarioInfo.Zombie.ZombieArmyZombification and 'true' or 'false'))
+	LOG("    ::Zombies:: Zombie Player Zombified: " .. (ScenarioInfo.Zombie.ZombifyByDefault and 'true' or 'false'))
 
 end
 
