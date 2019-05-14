@@ -1,6 +1,6 @@
 name = "Zombies"
-uid = "958c9fce-bae3-4e0f-b8e9-11ebd2c92b97"
-version = 5
+uid = "bec6916c-4e74-45e2-86fe-359a3d023324"
+version = 6
 description = "Dead units will become zombies! Now with army selection, mass/energy vampire, zombies speed, and zombie decay under AI Options in the lobby. See more at https://github.com/douglasg14b/FAF-Zombies"
 author = "Douglasg14b. Original Code by Zarechaun. Icon by flaticon.com"
 url = "https://github.com/douglasg14b/FAF-Zombies"
