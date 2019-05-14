@@ -49,8 +49,15 @@ do
 			local ok,msg = pcall(self.HandleDoTakeDamage, self, instigator, amount, vector, damageType)
 
 			if not ok then
-				WARN("::Zombies:: Exception occured when trying to perform zombie damage. Reverting to vanilla damage instead. Message on next line:")
+				local bp = self:GetBlueprint()
+
+				WARN("::Zombies:: Exception occured when trying to perform zombie damage. Reverting to vanilla damage instead. Message follows context:")
+				if bp ~= nil then
+					Log("::Zombies:: BP Context: " .. bp.Description)
+				end
+
 				WARN(msg)
+
 				oUnit.DoTakeDamage(self, instigator, amount, vector, damageType)
 			end
 		end,
@@ -60,7 +67,12 @@ do
 
 			-- Get AIs of the player who damaged the unit and the player who took damage
 			local selfAiBrain = self:GetAIBrain();
-			local instigatorAiBrain = instigator:GetAIBrain();
+			local instigatorAiBrain = nil;
+
+			--> Sometimes the instigator is nil, must handle this
+			if instigator ~= nil then
+				instigatorAiBrain = instigator:GetAIBrain();
+			end
 			
 
 			local preAdjHealth = self:GetHealth()
@@ -103,8 +115,13 @@ do
 			local massCost = bp.Economy.BuildCostMass
 			local energyCost = bp.Economy.BuildCostEnergy
 
-			instigatorAiBrain:GiveResource('MASS', massCost * tonumber(ScenarioInfo.Options.VampirePercentage))
-			instigatorAiBrain:GiveResource('ENERGY', energyCost * tonumber(ScenarioInfo.Options.VampirePercentage))
+			--> Sometimes the instigator is nil
+			if instigatorAiBrain ~= nil then
+				instigatorAiBrain:GiveResource('MASS', massCost * tonumber(ScenarioInfo.Options.VampirePercentage))
+				instigatorAiBrain:GiveResource('ENERGY', energyCost * tonumber(ScenarioInfo.Options.VampirePercentage))
+			end
+
+
 
 			self:ForkThread( self.HandlePseudoDeath, instigator,  overkillRatio)
 			self:AdjustHealth(self, maxHealth)
