@@ -14,7 +14,7 @@ An enhanced version of the old Zombies mod created by Zarechaun.
 
 A player slot is designated as the "Zombie". Any units that die in game respawn as zombies for this player, I'll refer to this as zombification.
 
-Zombie players units are NOT zombified by default. They must be killed first. This is a mechanics change I plan on removing in the future once more Zombie buffs/debuffs exist to make for more dynamic games.
+Zombie players units are zombified by default now. THis means they only die once, instead of twice which was the previous mechanic.
 
 ## Lobby Options
 
@@ -75,7 +75,7 @@ This lets you set a decay rate for zombified units. This causes the units (and b
 
 ### Zombie Player Build Rate
 
-This increases the build rate of the player in the Zombie slot. This buff does not apply to the commander or other starting units. This was a technical challenge that I decided to keep since the commanders being buffed might be too OP.
+This increases the build rate of the player in the Zombie slot. This buf applies to every Zombie player unit.
 
 **Options**:
 
@@ -102,13 +102,13 @@ This increases the build rate of the player in the Zombie slot. This buff does n
 
 
 
-### Zombie slot unit death changes
+### [Deprecated] ~Zombie slot unit death changes~ [Deprecated]
 
-Zombie player units no longer completely die and respawn from where the wreck is. This was the cause of some weirdness such as naval units not coming back till they sunk, and air units spawning on the ground. This also caused some grief to players as move/attack orders would be lost.
+~Zombie player units no longer completely die and respawn from where the wreck is. This was the cause of some weirdness such as naval units not coming back till they sunk, and air units spawning on the ground. This also caused some grief to players as move/attack orders would be lost.~
 
-This has been changed so Zombie player units, on first death, show an explosion, but keep attacking/moving immediately. Vampire mass/energy and veterancy is handed out appropriately.
+~This has been changed so Zombie player units, on first death, show an explosion, but keep attacking/moving immediately. Vampire mass/energy and veterancy is handed out appropriately.~
 
-This also means that Zombue players fotresses don't fall twice, and chickens don't produce two lightning storms.
+~This also means that Zombie players fotresses don't fall twice, and chickens don't produce two lightning storms.~
 
 ## Planned Features
 
@@ -119,11 +119,10 @@ This also means that Zombue players fotresses don't fall twice, and chickens don
   * Prevent some experimentals owned by the Zombie player from respawning after death (other players experimentals still become zombies)?
   * Option to turn off Zombie players zombies? Meaning the Zombie players units are already zombies, so they don't respawn fter death.
 * Random Zombie assignment game mode (like phantom)
-* ~Zombie unit health decay~
 * Some sort of buffs/nerfs to Zombies/Normies to make the game more dynamic
   * ~Zombie Speed~
-  * ~Zombie Decay~
-  * Zombie Build Speed
+  * ~Zombie unit health decay~
+  * ~Zombie Build Speed~
 * Cheese Mode (Fractal Zombies)
   * Experimentals should split into 1/2 mass equivilant T3 units of their kind
     * CZAR -> Restorers
