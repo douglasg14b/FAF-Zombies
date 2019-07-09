@@ -174,6 +174,7 @@ do
 
 		ApplyZombieBuiltRateBuff = function(self)
 			if not self then return end -- unit no longer exists
+
 			-- Defer and exit if not initilized
 			if not ScenarioInfo.ZombiesInitilized then
 				self:ForkThread(self.DeferTillInitilized, self.ApplyZombieBuiltRateBuff)
@@ -181,7 +182,7 @@ do
 			end
 
 			-- If no build rate applies, then return
-			if not ScenarioInfo.Zombie.BuildRate > 1 then return end
+			if ScenarioInfo.Zombie.BuildRate <= 1 then return end
 
 			local hasBuildRate = self:GetBlueprint().Economy.BuildRate > 1
 			local selfAiBrain = self:GetAIBrain()
@@ -195,6 +196,7 @@ do
 				if (selfAiBrain.Name == ScenarioInfo.Zombie.ArmyName) and hasBuildRate then 
 					if DebugMode then SPEW("::Zombies:: Applying build rate buff to: " .. self:GetEntityId()) end
 					if DebugMode then SPEW("    " .. ScenarioInfo.Zombie.BuildRate)  end
+					if DebugMode then SPEW("    " .. type(ScenarioInfo.Zombie.BuildRate))  end
 
 					Buff.ApplyBuff(self, "ZombieBuildRate_" .. ScenarioInfo.Zombie.BuildRate )
 				end
@@ -280,11 +282,10 @@ do
 				damagePerTick = math.floor(math.max(1, maxHealth / (ScenarioInfo.Zombie.DecayRate * 60)));
 			end
 
-
-
 			while (self and not self:IsDead()) and (self:GetHealth() > 0) do
-				local waitTicks = 10;
+				local waitTicks = 10; -- about 1 second
 				local health = math.min(self:GetHealth(), maxHealth)
+				local maxHealth = self:GetMaxHealth()
 
 				--> Dynamic decay rate reduced as health is lower
 				if(ScenarioInfo.Zombie.DecayRate == -1) then
@@ -304,11 +305,12 @@ do
 					end
 				end
 
+
 				--> TODO: FIgure out how to adjust health without the icon flicker...
 				if(health - damagePerTick <= 0) then
 					self.DoTakeDamage(self, self, damagePerTick, nil, "Spell")
 				else
-					--self:SetHealth(self, health - damagePerTick)
+					--self:SetHealth(health - damagePerTick)
 					self:AdjustHealth(self, -damagePerTick)
 				end
 
