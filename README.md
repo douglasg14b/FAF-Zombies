@@ -10,6 +10,13 @@ Zombies mod for Forged Alliance Forever!
 
 An enhanced version of the old Zombies mod created by Zarechaun. 
 
+**Recommended Settings**
+
+* Vampire - `50%`
+* Zombie Build Rate - `1.25x`
+* Zombie Speed - `Fast - 125%`
+* Zombie Decay - `None`
+
 **Mechanics**
 
 A player slot is designated as the "Zombie". Any units that die in game respawn as zombies for this player, I'll refer to this as zombification.
